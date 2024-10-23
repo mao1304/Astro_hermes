@@ -1,0 +1,44 @@
+---
+
+import { onMount } from 'solid-js';
+import { io } from 'socket.io-client';
+
+const socket = io('https://60sgw4z5-3000.use.devtunnels.ms/');
+
+onMount(() => {
+    var map = L.map('map').setView([51.505, -0.09], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    var imageUrl = 'https://maps.lib.utexas.edu/maps/historical/newark_nj_1922.jpg',
+    imageBounds = [[40.712216, -74.22655], [40.773941, -74.12544]];
+    L.imageOverlay(imageUrl, imageBounds).addTo(map);
+
+    var marker = L.marker([51.508, -0.09]).addTo(map);
+
+    socket.on('location', (data) => {
+        const { latitude, longitude } = data;
+        console.log(`Latitud: ${latitude}, Longitud: ${longitude}`);
+        marker.setLatLng([latitude, longitude]);
+    });
+
+    // Crea un icono personalizado
+    var customIcon = L.icon({
+        iconUrl: 'https://c8.alamy.com/compes/2bw72ee/este-es-el-diseno-de-la-letra-c-logo-con-el-estilo-inicial-logo-este-logotipo-es-adecuado-para-empresas-u-otros-negocios-creativos-para-compartir-este-logotipo-2bw72ee.jpg',
+        iconSize: [38, 38], 
+        iconAnchor: [22, 38], 
+        popupAnchor: [-3, -76] 
+    });
+
+    // Agrega un marcador al mapa usando el icono personalizado
+    L.marker([51.5, -0.09], { icon: customIcon }).addTo(map)
+        .bindPopup('Este es un marcador con un icono personalizado.')
+        .openPopup();
+});
+
+---
+
+<div class="w-full h-full bg-gray-700 rounded-lg">
+    <div id="map" style="height: 500px;"></div>
+  </div>
