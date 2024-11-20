@@ -1,0 +1,47 @@
+---
+import { onMount } from 'solid-js';
+import { createSignal } from 'solid-js';
+
+type Vehiculo = {
+  placa: string;
+  color: string;
+  marca: string;
+};
+
+const [vehiculos, setVehiculos] = createSignal<Vehiculo[]>([]);
+
+onMount(async () => {
+  try {
+    const respuesta = await fetch('https://60sgw4z5-8000.use.devtunnels.ms/api/v1/vehiculo/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!respuesta.ok) {
+      throw new Error(`Error: ${respuesta.status}`);
+    }
+
+    const datos: Vehiculo[] = await respuesta.json();
+    setVehiculos(datos);
+  } catch (error) {
+    console.error('Hubo un problema al obtener la información del vehículo:', error);
+  }
+});
+---
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width" />
+
+<h1>Información de Vehículos</h1>
+{vehiculos().length > 0 ? (
+  <ul>
+    {vehiculos().map((vehiculo) => (
+      <li>
+        <strong>Placa:</strong> {vehiculo.placa}, <strong>Color:</strong> {vehiculo.color}, <strong>Marca:</strong> {vehiculo.marca}
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>No hay información de vehículos disponible.</p>
+)}
